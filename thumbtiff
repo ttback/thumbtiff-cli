@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var path = require('path');
+var sharp = require('sharp');
+var program = require('commander');
+
+//DEFAULT PARAMETERS
+var THUMBNAIL_HEIGHT = 480;
+var THUMBNAIL_QUALITY = 80;
+var FILE_EXTENSION = "png";
+
+program
+    .version('0.0.1')
+    .option('-h, --height <n>', 'autoscale image to height. Default: 480', parseInt)
+    .option('-q, --quality <n>', 'set thumbnail quality. Default: 80', parseInt)
+    .option('-s, --sharpen', 'shapren the image')
+    .option('-t, --template <template string>', 'template the output file name, supported %n-filename, %h-height, %q-quality')
+    .option('-e, --extension <string>', 'set output file extension. Default: png')
+    .option('-o, --output <file>', 'output to a file')
+    .parse(process.argv);
+
+if (program.args.length > 0) {
+    var INPUT_FILE_PATHS = program.args;
+} else {
+	console.log("Please give an input file path to proceed. ")
+	process.exit(1);
+}
+
+
+for(var i=0, len=INPUT_FILE_PATHS.length;i<len;i++){
+	resize(INPUT_FILE_PATHS[i]);
+}
+
+function resize(input_file_path){
+	var _sharp = sharp(input_file_path);
+
+	var source_full_fileName = path.basename(input_file_path);
+	var source_filename = source_full_fileName.split(".")[0];
+
+	if(program.height){
+		THUMBNAIL_HEIGHT= program.height  
+	}
+
+	_sharp=_sharp.resize(null, THUMBNAIL_HEIGHT);
+
+	if(program.quality){
+	 THUMBNAIL_QUALITY=program.quality;
+	 _sharp=_sharp.quality(THUMBNAIL_QUALITY); 
+	}
+
+	if(program.sharpen){
+	  _sharp=_sharp.sharpen();
+	}
+
+	if(program.extension && !program.output){
+		FILE_EXTENSION = program.extension;
+	}
+
+	if(program.template && !program.output){
+		var template_dict = {
+			 "%n": source_filename
+		   , "%h": THUMBNAIL_HEIGHT
+		   , "%q": THUMBNAIL_QUALITY
+		}
+		var newSourceFilename = program.template;
+		for (var key in template_dict) {
+		   newSourceFilename=newSourceFilename.replace(new RegExp(key, 'g'), template_dict[key]);
+		}
+		source_filename=newSourceFilename;
+	}
+
+	var output_file = source_filename+ "."+FILE_EXTENSION;
+
+	if(program.output){
+	   output_file= program.output;
+	}
+
+	_sharp.write(output_file, function(err) {
+	  if (err) {
+	    throw err;
+	  }
+	});
+}

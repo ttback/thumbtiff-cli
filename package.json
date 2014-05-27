@@ -1,0 +1,30 @@
+{
+  "name": "thumbtiff-cli",
+  "version": "0.0.2",
+  "description": "CLI Wrapper for resizing large tiff with sharp",
+  "main": "thumbtiff.js",
+  "dependencies": {
+    "sharp": "~0.4.2",
+    "commander": "^2.2.0",
+    "path": "^0.4.9"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "thumbtiff": "thumbtiff"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ttback/thumbtiff-cli"
+  },
+  "keywords": [
+    "sharp",
+    "resize",
+    "thumbnail",
+    "tiff",
+    "cli"
+  ],
+  "author": "Tim Xia",
+  "license": "MIT"
+}
